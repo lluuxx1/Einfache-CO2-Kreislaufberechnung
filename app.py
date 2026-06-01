@@ -8,7 +8,7 @@ from scipy.optimize import brentq
 st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
-APP_VERSION = "0.5.0V"
+APP_VERSION = "0.8.0V"
 FLUID = "CO2"
 
 
@@ -384,48 +384,50 @@ with col1:
     row1col1, row1col2 = st.columns(2)
     with row1col1:
         project = st.text_input("Projekt", value="Projekt")
-    with row1col2:
-        mode = st.selectbox("Eingabemodus", ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"])
-
-    if mode == "Kälteleistung":
-        q0 = st.number_input("Kälteleistung [kW]", value=10.0)
-        qc = 0.0
-        vcom = 0.0
-    elif mode == "Wärmeleistung":
-        qc = st.number_input("Wärmeleistung [kW]", value=14.0)
-        q0 = 0.0
-        vcom = 0.0
-    else:
-        vcom = st.number_input("Verdichtervolumenstrom [m3/h]", value=15.0)
-        q0 = 0.0
-        qc = 0.0
-
+    
     row2col1, row2col2 = st.columns(2)
     with row2col1:
-        tgc = st.number_input("Gaskühleraustrittstemperatur [°C]", value=35.0)
+        mode = st.selectbox("Eingabemodus", ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"])
     with row2col2:
-        t0 = st.number_input("Verdampfungstemperatur [°C]", value=-10.0)
+        if mode == "Kälteleistung":
+            q0 = st.number_input("Kälteleistung [kW]", value=10.0)
+            qc = 0.0
+            vcom = 0.0
+        elif mode == "Wärmeleistung":
+            qc = st.number_input("Wärmeleistung [kW]", value=14.0)
+            q0 = 0.0
+            vcom = 0.0
+        else:
+            vcom = st.number_input("Verdichtervolumenstrom [m3/h]", value=15.0)
+            q0 = 0.0
+            qc = 0.0
 
-    row3col1, row3col2 = st.columns(2)
     with row3col1:
-        pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"])
+        tgc = st.number_input("Gaskühleraustrittstemperatur [°C]", value=35.0)
     with row3col2:
-        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=(pgc_mode == "Automatisch"))
+        
+        pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"])
 
     row4col1, row4col2 = st.columns(2)
     with row4col1:
-        dt0h = st.number_input("Verdampferüberhitzung [K]", value=6.0)
+        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=(pgc_mode == "Automatisch"))
     with row4col2:
+        t0 = st.number_input("Verdampfungstemperatur [°C]", value=-10.0)
+
+    row5col1, row5col2 = st.columns(2)
+    with row5col1:
+        dt0h = st.number_input("Verdampferüberhitzung [K]", value=6.0)
+    with row5col2:
         dtsh = st.number_input("Saugleitungsüberhitzung [K]", value=9.0)
     ifpipes = st.selectbox("Rohrleitungsdimensionierung", ["Nein", "Ja"])
     pipeinputs = ifpipes == "Ja"
     row5col1, row5col2, row5col3 = st.columns(3)
     with row5col1:
-        lhg = st.number_input("Heissgasleitungslänge [m]", value=5.0)
+        lhg = st.number_input("Heissgasleitungslänge [m]", value=5.0) if pipeinputs else 5.0
     with row5col2:
-        lfl = st.number_input("Flüssigkeitsleitungslänge [m]", value=2.5)
+        lfl = st.number_input("Flüssigkeitsleitungslänge [m]", value=2.5) if pipeinputs else 5.0
     with row5col3:
-        lsl = st.number_input("Saugleitungslänge [m]", value=3.0)
+        lsl = st.number_input("Saugleitungslänge [m]", value=3.0) if pipeinputs else 5.0
 
     run = st.button("Berechnen", use_container_width=True)
 
@@ -466,27 +468,26 @@ if run:
     except Exception as e:
         st.session_state.co2_result = {"exception": str(e)}
 
-with col2:
-    if st.session_state.co2_result is not None:
-        if "exception" in st.session_state.co2_result:
-            st.error(st.session_state.co2_result["exception"])
-        else:
-            data = st.session_state.co2_result
-            st.dataframe(data["results"], use_container_width=True, hide_index=True)
-            st.subheader("Kreislaufpunkte")
-            st.dataframe(data["points"], use_container_width=True, hide_index=True)
-            if ifpipes == "Ja":
-                st.subheader("Rohrleitungsdimensionierung")
-                st.dataframe(data["pipes"], use_container_width=True, hide_index=True)
-            st.download_button(
-                "CSV herunterladen",
-                data=data["csv"],
-                file_name=f"{data['project'].replace(' ', '_')}_co2_auswertung.csv",
-                mime="text/csv",
-                use_container_width=True,
-            )
-            if data["errors"]:
-                st.warning("\n".join(data["errors"]))
+if st.session_state.co2_result is not None:
+    if "exception" in st.session_state.co2_result:
+        st.error(st.session_state.co2_result["exception"])
+    else:
+        data = st.session_state.co2_result
+        st.dataframe(data["results"], use_container_width=True, hide_index=True)
+        st.subheader("Kreislaufpunkte")
+        st.dataframe(data["points"], use_container_width=True, hide_index=True)
+        if ifpipes == "Ja":
+            st.subheader("Rohrleitungsdimensionierung")
+            st.dataframe(data["pipes"], use_container_width=True, hide_index=True)
+        st.download_button(
+            "CSV herunterladen",
+            data=data["csv"],
+            file_name=f"{data['project'].replace(' ', '_')}_co2_auswertung.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+        if data["errors"]:
+            st.warning("\n".join(data["errors"]))
 
 st.divider()
 with st.expander("Anleitung"):
