@@ -477,13 +477,13 @@ with col2:
         data = st.session_state.get("co2result")
         if data is not None:
             st.dataframe(data["results"], use_container_width=True, hide_index=True)
-        st.download_button(
-            "CSV herunterladen",
-            data=data["csv"],
-            file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
-            mime="text/csv",
-            use_container_width=True,
-            )
+            st.download_button(
+                "CSV herunterladen",
+                data=data["csv"],
+                file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
+                mime="text/csv",
+                use_container_width=True,
+                )
         if st.session_state.co2result is None:
             st.info("Eingaben setzen und auf Berechnen klicken.")
 
