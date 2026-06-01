@@ -5,10 +5,10 @@ import streamlit as st
 import CoolProp.CoolProp as cp
 from scipy.optimize import brentq
 
-st.set_page_config(page_title="CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
+st.set_page_config(page_title="EinfacheCO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
-APP_TITLE = "CO2 Kreislaufberechnung"
-APP_VERSION = "0.4.0V"
+APP_TITLE = "Einfache CO2 Kreislaufberechnung"
+APP_VERSION = "0.5.0V"
 FLUID = "CO2"
 
 
@@ -408,35 +408,24 @@ with col1:
 
     row3col1, row3col2 = st.columns(2)
     with row3col1:
-        crit = cp.PropsSI("TCRIT", FLUID)
-    pgc_disabled = tgc < crit
-    pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"], disabled=pgc_disabled)
+        pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"])
     with row3col2:
-        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=pgc_disabled or (pgc_mode == "Automatisch"))
+        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=False)
 
     row4col1, row4col2 = st.columns(2)
     with row4col1:
         dt0h = st.number_input("Verdampferüberhitzung [K]", value=6.0)
     with row4col2:
         dtsh = st.number_input("Saugleitungsüberhitzung [K]", value=9.0)
-
     ifpipes = st.selectbox("Rohrleitungsdimensionierung", ["Nein", "Ja"])
     pipeinputs = ifpipes == "Ja"
-
-    if pipeinputs:
-        pipeopt = st.selectbox("Rohrleitungsoptimierung", ["Druckverlust", "Durchmesser"])
-        row5col1, row5col2, row5col3 = st.columns(3)
-        with row5col1:
-            lhg = st.number_input("Heissgasleitungslänge [m]", value=5.0)
-        with row5col2:
-            lfl = st.number_input("Flüssigkeitsleitungslänge [m]", value=2.5)
-        with row5col3:
-            lsl = st.number_input("Saugleitungslänge [m]", value=3.0)
-    else:
-        pipeopt = "Druckverlust"
-        lhg = 5.0
-        lfl = 2.5
-        lsl = 3.0
+    row5col1, row5col2, row5col3 = st.columns(3)
+    with row5col1:
+        lhg = st.number_input("Heissgasleitungslänge [m]", value=5.0)
+    with row5col2:
+        lfl = st.number_input("Flüssigkeitsleitungslänge [m]", value=2.5)
+    with row5col3:
+        lsl = st.number_input("Saugleitungslänge [m]", value=3.0)
 
     run = st.button("Berechnen", use_container_width=True)
 
@@ -462,7 +451,6 @@ if run:
             "dt_0h": dt0h,
             "dt_sh": dtsh,
             "if_pipes": 0 if ifpipes == "Nein" else 1,
-            "pipe_opt": 0 if pipeopt == "Druckverlust" else 1,
             "l_hg": lhg,
             "l_fl": lfl,
             "l_sl": lsl,
