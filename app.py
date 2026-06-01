@@ -8,7 +8,7 @@ from scipy.optimize import brentq
 st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
-APP_VERSION = "0.9.0V"
+APP_VERSION = "0.9.1V"
 FLUID = "CO2"
 
 
@@ -466,9 +466,6 @@ with col2:
             except Exception as e:
                 st.session_state.co2_result = {"exception": str(e)}
 
-            if st.session_state.co2_result is None:
-                st.info("Eingaben setzen und auf Berechnen klicken.")
-
             if "exception" in st.session_state.co2_result:
                 st.error(st.session_state.co2_result["exception"])
             else:
@@ -483,10 +480,14 @@ with col2:
             use_container_width=True,
             )
 
+        if st.session_state.co2_result is None:
+            st.info("Eingaben setzen und auf Berechnen klicken.")
+
 if st.session_state.co2_result is not None:
     if "exception" in st.session_state.co2_result:
         st.error(st.session_state.co2_result["exception"])
     else:
+        data = st.session_state.co2_result
         st.subheader("Kreislaufpunkte")
         st.dataframe(data["points"], use_container_width=True, hide_index=True)
         if ifpipes == "Ja":
