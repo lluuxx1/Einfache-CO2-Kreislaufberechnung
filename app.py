@@ -476,12 +476,9 @@ with col2:
         data = st.session_state.get("co2result")
         if data is not None:
             st.dataframe(data["results"], use_container_width=True, hide_index=True)
-            csv_data = data.get("csv")
-            if isinstance(csv_data, (bytes, bytearray)):
-                csv_data = csv_data.decode("utf-8-sig")
         st.download_button(
             "CSV herunterladen",
-            data=csv_data,
+            data=data["csv"],
             file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
             mime="text/csv",
             use_container_width=True,
