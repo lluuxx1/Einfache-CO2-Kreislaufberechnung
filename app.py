@@ -375,8 +375,8 @@ st.markdown(
 
 st.caption("Berechnet die wichtigsten Zustände und Kennwerte eines CO2-Kreislaufs für subkritischen und transkritischen Betrieb.")
 
-if "co2_result" not in st.session_state:
-    st.session_state.co2_result = None
+if "co2result" not in st.session_state:
+    st.session_state.co2result = None
 
 col1, col2 = st.columns([1.05, 1.3])
 
@@ -450,7 +450,7 @@ if run:
             "l_fl": lfl,
             "l_sl": lsl,
         })
-        st.session_state.co2_result = {
+        st.session_state.co2result = {
             "project": project,
             "points": points,
             "results": results,
@@ -459,12 +459,12 @@ if run:
             "csv": build_csv_bytes(results, points, pipes if ifpipes == "Ja" else None),
         }
     except Exception as e:
-        st.session_state.co2_result = {"exception": str(e)}
+        st.session_state.co2result = {"exception": str(e)}
 
-    if "exception" in st.session_state.co2_result:
-        st.error(st.session_state.co2_result["exception"])
+    if "exception" in st.session_state.co2result:
+        st.error(st.session_state.co2result["exception"])
     else:
-        data = st.session_state.co2_result
+        data = st.session_state.co2result
 
 
 
@@ -478,19 +478,19 @@ with col2:
             st.dataframe(data["results"], use_container_width=True, hide_index=True)
         st.download_button(
             "CSV herunterladen",
-            data=data["csv"],
+            data=csv_data,
             file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
             mime="text/csv",
             use_container_width=True,
             )
-        if st.session_state.co2_result is None:
+        if st.session_state.co2result is None:
             st.info("Eingaben setzen und auf Berechnen klicken.")
 
-if st.session_state.co2_result is not None:
-    if "exception" in st.session_state.co2_result:
-        st.error(st.session_state.co2_result["exception"])
+if st.session_state.co2result is not None:
+    if "exception" in st.session_state.co2result:
+        st.error(st.session_state.co2result["exception"])
     else:
-        data = st.session_state.co2_result
+        data = st.session_state.co2result
         st.subheader("Kreislaufpunkte")
         st.dataframe(data["points"], use_container_width=True, hide_index=True)
         if ifpipes == "Ja":
