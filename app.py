@@ -8,7 +8,7 @@ from scipy.optimize import brentq
 st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
-APP_VERSION = "0.5.0V"
+APP_VERSION = "0.7.1V"
 FLUID = "CO2"
 
 
@@ -384,11 +384,13 @@ with col1:
     row1col1, row1col2 = st.columns(2)
     with row1col1:
         project = st.text_input("Projekt", value="Projekt")
+        mode = st.selectbox("Eingabemodus / Kälteleistung / Wärme / Volumenstrom", ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"])
     with row1col2:
-        mode = st.selectbox("Eingabemodus", ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"])
+        tgc = st.number_input("Gaskühleraustrittstemperatur / Gaskühlerdruck", value=35.0)
+        t0 = st.number_input("Gaskühlerdruck [bar] / Verdampfungstemperatur", value=-10.0)
 
     if mode == "Kälteleistung":
-        q0 = st.number_input("Kälteleistung [kW]", value=10.0)
+        q0 = st.number_input("Verdampferüberhitzung / Saugleitungsüberhitzung", value=10.0)
         qc = 0.0
         vcom = 0.0
     elif mode == "Wärmeleistung":
@@ -402,30 +404,26 @@ with col1:
 
     row2col1, row2col2 = st.columns(2)
     with row2col1:
-        tgc = st.number_input("Gaskühleraustrittstemperatur [°C]", value=35.0)
+        pipe_dim = st.selectbox("Rohrleitungsdimensionierung", ["Nein", "Ja"])
     with row2col2:
-        t0 = st.number_input("Verdampfungstemperatur [°C]", value=-10.0)
+        pgc = st.number_input("Heissgasleitung / Flüssigkeitsl / Saugl", value=90.0, disabled=(pipe_dim == "Nein"))
 
     row3col1, row3col2 = st.columns(2)
     with row3col1:
-        pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"])
-    with row3col2:
-        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=(pgc_mode == "Automatisch"))
-
-    row4col1, row4col2 = st.columns(2)
-    with row4col1:
         dt0h = st.number_input("Verdampferüberhitzung [K]", value=6.0)
-    with row4col2:
+    with row3col2:
         dtsh = st.number_input("Saugleitungsüberhitzung [K]", value=9.0)
-    ifpipes = st.selectbox("Rohrleitungsdimensionierung", ["Nein", "Ja"])
-    pipeinputs = ifpipes == "Ja"
-    row5col1, row5col2, row5col3 = st.columns(3)
-    with row5col1:
-        lhg = st.number_input("Heissgasleitungslänge [m]", value=5.0)
-    with row5col2:
-        lfl = st.number_input("Flüssigkeitsleitungslänge [m]", value=2.5)
-    with row5col3:
-        lsl = st.number_input("Saugleitungslänge [m]", value=3.0)
+
+    if pipe_dim == "Ja":
+        row5col1, row5col2, row5col3 = st.columns(3)
+        with row5col1:
+            lhg = st.number_input("Heissgasleitungslänge [m]", value=5.0)
+        with row5col2:
+            lfl = st.number_input("Flüssigkeitsleitungslänge [m]", value=2.5)
+        with row5col3:
+            lsl = st.number_input("Saugleitungslänge [m]", value=3.0)
+    else:
+        lhg = lfl = lsl = 0.0
 
     run = st.button("Berechnen", use_container_width=True)
 
@@ -450,7 +448,7 @@ if run:
             "p_gc": pgc,
             "dt_0h": dt0h,
             "dt_sh": dtsh,
-            "if_pipes": 0 if ifpipes == "Nein" else 1,
+            "if_pipes": 0 if pipe_dim == "Nein" else 1,
             "l_hg": lhg,
             "l_fl": lfl,
             "l_sl": lsl,
