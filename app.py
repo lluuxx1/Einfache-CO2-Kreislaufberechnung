@@ -8,7 +8,7 @@ from scipy.optimize import brentq
 st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
-APP_VERSION = "0.9.7V"
+APP_VERSION = "0.9.5V"
 FLUID = "CO2"
 
 
@@ -476,9 +476,12 @@ with col2:
         data = st.session_state.get("co2result")
         if data is not None:
             st.dataframe(data["results"], use_container_width=True, hide_index=True)
+            csv_data = data.get("csv")
+            if isinstance(csv_data, (bytes, bytearray)):
+                csv_data = csv_data.decode("utf-8-sig")
         st.download_button(
             "CSV herunterladen",
-            data=data["csv"],
+            data=csv_data,
             file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
             mime="text/csv",
             use_container_width=True,
