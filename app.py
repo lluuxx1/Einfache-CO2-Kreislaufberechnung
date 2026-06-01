@@ -461,10 +461,10 @@ if run:
     except Exception as e:
         st.session_state.co2_result = {"exception": str(e)}
 
-if "exception" in st.session_state.co2_result:
-    st.error(st.session_state.co2_result["exception"])
-else:
-    data = st.session_state.co2_result
+    if "exception" in st.session_state.co2_result:
+        st.error(st.session_state.co2_result["exception"])
+    else:
+        data = st.session_state.co2_result
 
 
 
