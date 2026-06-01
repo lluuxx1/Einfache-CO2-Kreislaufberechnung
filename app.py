@@ -431,6 +431,7 @@ with col1:
 
     run = st.button("Berechnen", use_container_width=True)
 
+data = None
 if run:
     try:
         points, results, pipes, errors = run_calculation({
