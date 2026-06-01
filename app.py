@@ -478,7 +478,7 @@ with col2:
             st.dataframe(data["results"], use_container_width=True, hide_index=True)
         st.download_button(
             "CSV herunterladen",
-            data=csv_data,
+            data=data["csv"],
             file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
             mime="text/csv",
             use_container_width=True,
