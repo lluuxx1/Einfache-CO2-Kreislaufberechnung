@@ -402,6 +402,7 @@ with col1:
             q0 = 0.0
             qc = 0.0
 
+    row3col1, row3col2 = st.columns(2)
     with row3col1:
         tgc = st.number_input("Gaskühleraustrittstemperatur [°C]", value=35.0)
     with row3col2:
