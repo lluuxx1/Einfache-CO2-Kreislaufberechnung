@@ -8,7 +8,7 @@ from scipy.optimize import brentq
 st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
-APP_VERSION = "0.8.0V"
+APP_VERSION = "0.8.2V"
 FLUID = "CO2"
 
 
@@ -381,6 +381,7 @@ if "co2_result" not in st.session_state:
 col1, col2 = st.columns([1.05, 1.3])
 
 with col1:
+    st.subheader("Eingabe")
     project = st.text_input("Projekt", value="Projekt")
     
     row2col1, row2col2 = st.columns(2)
@@ -481,7 +482,7 @@ if st.session_state.co2_result is not None:
         st.download_button(
             "CSV herunterladen",
             data=data["csv"],
-            file_name=f"{data['project'].replace(' ', '_')}_co2_auswertung.csv",
+            file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
             mime="text/csv",
             use_container_width=True,
         )
@@ -494,13 +495,20 @@ with st.expander("Anleitung"):
         """
 Dieses Tool überführt die bestehende CO2-Kreislaufberechnung in den Streamlit-Stil der einfachen Kreislaufberechnung.
 
-Berücksichtigt werden:
-- subkritischer und transkritischer CO2-Betrieb,
-- Eingabe über Kälteleistung, Wärmeleistung oder Verdichtervolumenstrom,
-- optionale Rohrleitungsdimensionierung,
-- CSV-Export mit Titel und Versionsnummer in der ersten Zeile.
+Berücksichtigt wird subkritischer und transkritischer CO2-Betrieb.
 
-Hinweis zur Reibungszahl:
-- Für die Rohrreibungszahl wird die funktionierende Logik aus der einfachen Kreislaufberechnung verwendet.
+**Bedeutung der Kreislaufpunkte:**
+
+        - **1:** Verdichtereingang nach Überhitzung von Verdampfer und Saugleitung
+        - **2:** Verdichterausgang und Verflüssigereintritt
+        - **3:** Verflüssigeraustritt und Expansionsventileingang
+        - **4:** Expansionsventilausgang und Verdampfereintritt
+        - **5:** Verdampferausgang und Eingang Saugleitung
+        - **c''**: Gesättigtes Gas bei Verflüssigungsdruck
+        - **c'**: Flüssigkeit bei Verflüssigungsdruck
+        - **0''**: Gesättigtes Gas bei Verdampfungsdruck
+        - **0'**: Flüssigkeit bei Verdampfungsdruck
+
+Repository: https://github.com/div-ne/Einfache-CO2-Kreislaufberechnung
         """
     )
