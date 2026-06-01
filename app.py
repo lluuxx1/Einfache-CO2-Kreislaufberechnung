@@ -5,7 +5,7 @@ import streamlit as st
 import CoolProp.CoolProp as cp
 from scipy.optimize import brentq
 
-st.set_page_config(page_title="EinfacheCO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
+st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
 APP_VERSION = "0.5.0V"
@@ -410,7 +410,7 @@ with col1:
     with row3col1:
         pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"])
     with row3col2:
-        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=False)
+        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=(pgc_mode == "Automatisch"))
 
     row4col1, row4col2 = st.columns(2)
     with row4col1:
