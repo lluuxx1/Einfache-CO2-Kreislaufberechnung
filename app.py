@@ -8,7 +8,7 @@ from scipy.optimize import brentq
 st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
-APP_VERSION = "0.8.2V"
+APP_VERSION = "0.9.0V"
 FLUID = "CO2"
 
 
@@ -438,54 +438,59 @@ with col2:
         if st.session_state.co2_result is None:
             st.info("Eingaben setzen und auf Berechnen klicken.")
 
-if run:
-    try:
-        points, results, pipes, errors = run_calculation({
-            "project": project,
-            "mode": ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"].index(mode),
-            "Q_0": q0,
-            "Q_c": qc,
-            "V_com": vcom,
-            "T_gc_o": tgc,
-            "T_0": t0,
-            "p_gc_mode": 0 if pgc_mode == "Automatisch" else 1,
-            "p_gc": pgc,
-            "dt_0h": dt0h,
-            "dt_sh": dtsh,
-            "if_pipes": 0 if ifpipes == "Nein" else 1,
-            "l_hg": lhg,
-            "l_fl": lfl,
-            "l_sl": lsl,
-        })
-        st.session_state.co2_result = {
-            "project": project,
-            "points": points,
-            "results": results,
-            "pipes": pipes,
-            "errors": errors,
-            "csv": build_csv_bytes(results, points, pipes if ifpipes == "Ja" else None),
-        }
-    except Exception as e:
-        st.session_state.co2_result = {"exception": str(e)}
+        if run:
+            try:
+                points, results, pipes, errors = run_calculation({
+                    "project": project,
+                    "mode": ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"].index(mode),
+                    "Q_0": q0,
+                    "Q_c": qc,
+                    "V_com": vcom,
+                    "T_gc_o": tgc,
+                    "T_0": t0,
+                    "p_gc_mode": 0 if pgc_mode == "Automatisch" else 1,
+                    "p_gc": pgc,
+                    "dt_0h": dt0h,
+                    "dt_sh": dtsh,
+                    "if_pipes": 0 if ifpipes == "Nein" else 1,
+                    "l_hg": lhg,
+                    "l_fl": lfl,
+                    "l_sl": lsl,
+                })
+                st.session_state.co2_result = {
+                    "project": project,
+                    "points": points,
+                    "results": results,
+                    "pipes": pipes,
+                    "errors": errors,
+                    "csv": build_csv_bytes(results, points, pipes if ifpipes == "Ja" else None),
+                }
+            except Exception as e:
+                st.session_state.co2_result = {"exception": str(e)}
+
+            if "exception" in st.session_state.co2_result:
+                st.error(st.session_state.co2_result["exception"])
+            else:
+                data = st.session_state.co2_result
+
+            st.download_button(
+            "CSV herunterladen",
+            data=data["csv"],
+            file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
+            mime="text/csv",
+            use_container_width=True,
+            )
 
 if st.session_state.co2_result is not None:
     if "exception" in st.session_state.co2_result:
         st.error(st.session_state.co2_result["exception"])
     else:
-        data = st.session_state.co2_result
         st.dataframe(data["results"], use_container_width=True, hide_index=True)
         st.subheader("Kreislaufpunkte")
         st.dataframe(data["points"], use_container_width=True, hide_index=True)
         if ifpipes == "Ja":
             st.subheader("Rohrleitungsdimensionierung")
             st.dataframe(data["pipes"], use_container_width=True, hide_index=True)
-        st.download_button(
-            "CSV herunterladen",
-            data=data["csv"],
-            file_name=f"{data['project'].replace(' ', '_')}_Einfache-CO2-Kreislaufberechnung.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
         if data["errors"]:
             st.warning("\n".join(data["errors"]))
 
