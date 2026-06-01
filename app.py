@@ -435,8 +435,6 @@ with col2:
     result_container = st.container()
     with result_container:
         st.subheader("Ergebnis")
-        if st.session_state.co2_result is None:
-            st.info("Eingaben setzen und auf Berechnen klicken.")
 
         if run:
             try:
@@ -468,10 +466,14 @@ with col2:
             except Exception as e:
                 st.session_state.co2_result = {"exception": str(e)}
 
+            if st.session_state.co2_result is None:
+                st.info("Eingaben setzen und auf Berechnen klicken.")
+
             if "exception" in st.session_state.co2_result:
                 st.error(st.session_state.co2_result["exception"])
             else:
                 data = st.session_state.co2_result
+                st.dataframe(data["results"], use_container_width=True, hide_index=True)
 
             st.download_button(
             "CSV herunterladen",
@@ -485,7 +487,6 @@ if st.session_state.co2_result is not None:
     if "exception" in st.session_state.co2_result:
         st.error(st.session_state.co2_result["exception"])
     else:
-        st.dataframe(data["results"], use_container_width=True, hide_index=True)
         st.subheader("Kreislaufpunkte")
         st.dataframe(data["points"], use_container_width=True, hide_index=True)
         if ifpipes == "Ja":
@@ -505,12 +506,10 @@ Berücksichtigt wird subkritischer und transkritischer CO2-Betrieb.
 **Bedeutung der Kreislaufpunkte:**
 
         - **1:** Verdichtereingang nach Überhitzung von Verdampfer und Saugleitung
-        - **2:** Verdichterausgang und Verflüssigereintritt
-        - **3:** Verflüssigeraustritt und Expansionsventileingang
+        - **2:** Verdichterausgang und Gaskühlereintritt
+        - **3:** Gaskühleraustritt und Expansionsventileingang
         - **4:** Expansionsventilausgang und Verdampfereintritt
         - **5:** Verdampferausgang und Eingang Saugleitung
-        - **c''**: Gesättigtes Gas bei Verflüssigungsdruck
-        - **c'**: Flüssigkeit bei Verflüssigungsdruck
         - **0''**: Gesättigtes Gas bei Verdampfungsdruck
         - **0'**: Flüssigkeit bei Verdampfungsdruck
 
