@@ -381,9 +381,7 @@ if "co2_result" not in st.session_state:
 col1, col2 = st.columns([1.05, 1.3])
 
 with col1:
-    row1col1, row1col2 = st.columns(2)
-    with row1col1:
-        project = st.text_input("Projekt", value="Projekt")
+    project = st.text_input("Projekt", value="Projekt")
     
     row2col1, row2col2 = st.columns(2)
     with row2col1:
