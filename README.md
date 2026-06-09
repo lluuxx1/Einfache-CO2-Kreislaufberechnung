@@ -1,74 +1,57 @@
-# Einfache CO2 Kreislaufberechnung
+# Einfache Kreislaufberechnung
 
-[**Zur Live-Anwendung**](https://co2berechnung.streamlit.app/)
+[**Zur Anwendung**](https://kreislaufberechnung.streamlit.app/)
 
 ## Funktionen
 
-- Berechnung eines **CO2-Kreislaufs** auf Basis von **Kälteleistung**, **Wärmeleistung** oder **Verdichtervolumenstrom**.
-- Auslegung für **subkritischen** und **transkritischen** Betrieb, abhängig vom gewählten bzw. berechneten Gaskühlerdruck.
-- Ausgabe der **Kreislaufpunkte** mit Temperatur, Druck, spezifischer Enthalpie, Dichte, spezifischer Entropie und Dampfqualität.
-- Optionale **Rohrleitungsdimensionierung** für Heissgas-, Flüssigkeits- und Saugleitung mit den Varianten „minimaler Druckverlust“ und „minimaler Durchmesser“.
-- Export aller berechneten Ergebnisse als **CSV-Datei**, bestehend aus Systemdaten, Kreislaufpunkten und optional Rohrleitungsdimensionierung.
-- Integrierte **Anleitung** mit Kurzbeschreibung der Anwendung und Hinweis auf die verwendete Rohrreibungszahl-Logik.
-
-## Oberfläche
-
-Die Oberfläche ist im Stil der einfachen Kreislaufberechnung aufgebaut: Eingabefelder stehen links, die Systemdaten werden rechts ausgegeben und die weiteren Ergebnistabellen darunter dargestellt.
-
-Die App zeigt Titel und Versionsnummer im Kopfbereich an; in der aktuellen CO2-Version ist die Version auf **0.9.3V** gesetzt.
+- Berechnung zentraler Systemdaten wie Kältemittelmassenstrom und EER.
+- Berechnung von neun Kreislaufpunkten mit spezifischer Enthalpie, Entropie und Dichte.
+- Bei Kältemitteln mit Temperaturgleit wird die eingegebene Verflüssigungs- bzw. Verdampfungstemperatur als mittlere Temperatur interpretiert. Für die Verflüssigung wird die mittlere Temperatur zwischen linker und rechter Grenzkurve verwendet, für die Verdampfung die mittlere Temperatur zwischen Verdampfereintritt und rechter Grenzkurve.
+- Auslegung von jeweils zwei Rohrleitungsvarianten für Heißgasleitung, Flüssigkeitsleitung und Saugleitung inklusive Innenvolumen und Mantelfläche.
+- Export aller berechneten Daten als CSV-Datei.
 
 ## Eingabeparameter
 
-Folgende Eingaben stehen in der App zur Verfügung:
+Die Berechnung wird mit folgenden Eingaben durchgeführt:
 
 - Projektname
+- Kältemittel
 - Eingabemodus
 - Kälteleistung, Wärmeleistung oder Verdichtervolumenstrom, abhängig vom gewählten Modus
-- Gaskühleraustrittstemperatur
+- Verflüssigungstemperatur
+- Unterkühlung
 - Verdampfungstemperatur
-- Gaskühlerdruck, automatisch oder manuell
 - Verdampferüberhitzung
 - Saugleitungsüberhitzung
 - Aktivierung der Rohrleitungsdimensionierung
-- Rohrleitungsoptimierung nach Druckverlust oder Durchmesser
-- Leitungslängen für Heissgas-, Flüssigkeits- und Saugleitung
+- Leitungslängen für Heißgas-, Flüssigkeits- und Saugleitung
 
-Die aktuell gesetzten Standardwerte sind unter anderem `Projekt`, `Gaskühleraustrittstemperatur = 35 °C`, `Verdampfungstemperatur = -10 °C`, `Verdampferüberhitzung = 6 K`, `Saugleitungsüberhitzung = 9 K`, `Heissgasleitungslänge = 5 m`, `Flüssigkeitsleitungslänge = 2.5 m` und `Saugleitungslänge = 3 m`.
+## Kreislaufpunkte
 
-## CO2-spezifische Berechnung
-
-Die Anwendung verwendet **CO2** als festes Arbeitsmedium und bestimmt den Prozessbereich anhand des Hochdruckniveaus automatisch als **subkritisch** oder **transkritisch**.
-
-Der Gaskühlerdruck kann entweder automatisch über die hinterlegte Näherungsfunktion bestimmt oder manuell vorgegeben werden.
-
-Zusätzlich wird der erkannte Prozessbereich in den **Systemdaten** ausgegeben.
+Folgende Kreislaufpunkte werden berechnet:
+- **1:** Verdichtereingang nach Überhitzung von Verdampfer und Saugleitung
+- **2:** Verdichterausgang und Verflüssigereintritt
+- **3:** Verflüssigeraustritt und Expansionsventileingang
+- **4:** Expansionsventilausgang und Verdampfereintritt
+- **5:** Verdampferausgang und Eingang Saugleitung
+- **c''**: Gesättigtes Gas bei Verflüssigungsdruck
+- **c'**: Flüssigkeit bei Verflüssigungsdruck
+- **0''**: Gesättigtes Gas bei Verdampfungsdruck
+- **0'**: Flüssigkeit bei Verdampfungsdruck
 
 ## Rohrleitungsdimensionierung
 
 Die Rohrleitungsberechnung verwendet hinterlegte Kupferrohrabmessungen und bewertet je Leitung Strömungsgeschwindigkeit, Jacobs-Geschwindigkeit, Druckverlust, Außenmantelfläche und Innenvolumen.
 
-Die Variante **minimaler Druckverlust** wählt die größte zulässige Rohrgröße innerhalb des jeweiligen Druckverlustkriteriums, während **minimaler Durchmesser** die kleinste zulässige Rohrgröße unter demselben Grenzwert auswählt.
+Für jede Leitung werden zwei Varianten bestimmt:
 
-Für die **Rohrreibungszahl** wird die funktionierende Logik aus der einfachen Kreislaufberechnung verwendet, damit der bekannte Fehler aus der alten CO2-Datei nicht übernommen wird.
+- eine Variante mit minimalem Druckverlust
+- eine Variante mit minimalem Durchmesser
 
 ## CSV-Export
 
-Über den Button **„CSV herunterladen“** wird eine Auswertungsdatei mit Semikolon als Trennzeichen und UTF-8-BOM erzeugt, damit sich die Datei in Tabellenprogrammen wie Excel in der Regel direkt sauber öffnen lässt.
-
-Die CSV enthält in der **ersten Zeile** den Programmtitel und die Versionsnummer.
-
-Danach folgen die Abschnitte:
-
-- Systemdaten
-- Kreislaufpunkte
-- Rohrleitungsdimensionierung, sofern aktiviert
+Über den Button **„CSV-Datei erstellen“** können die Daten exportiert werden.
 
 ## Technische Basis
 
 Die Anwendung basiert auf **Streamlit** für die Oberfläche, **CoolProp** für Stoffdaten und thermodynamische Zustandsgrößen, **NumPy** und **Pandas** für Berechnung und Datenaufbereitung sowie **SciPy** für numerische Lösungsverfahren mit `brentq`.
-
-## Hinweise
-
-Die Anwendung ist für schnelle Überschlagsrechnungen und die kompakte Darstellung thermodynamischer Zustände eines CO2-Kreislaufs gedacht.
-
-Für die Ergebnisqualität sind plausible Eingabedaten entscheidend; insbesondere bei manuell gesetztem Gaskühlerdruck, bei Grenzbereichen zwischen subkritischem und transkritischem Betrieb sowie bei der Rohrleitungsdimensionierung sollten die Eingaben fachlich passend zur betrachteten Anlage gewählt werden.
