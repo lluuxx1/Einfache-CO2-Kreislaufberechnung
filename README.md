@@ -1,41 +1,48 @@
-# Einfache Kreislaufberechnung
+# Einfache CO2 Kreislaufberechnung
 
-[**Zur Anwendung**](https://kreislaufberechnung.streamlit.app/)
+[**Zur Anwendung**](https://co2berechnung.streamlit.app/)
 
 ## Funktionen
 
 - Berechnung zentraler Systemdaten wie Kältemittelmassenstrom und EER.
 - Berechnung von neun Kreislaufpunkten mit spezifischer Enthalpie, Entropie und Dichte.
-- Bei Kältemitteln mit Temperaturgleit wird die eingegebene Verflüssigungs- bzw. Verdampfungstemperatur als mittlere Temperatur interpretiert. Für die Verflüssigung wird die mittlere Temperatur zwischen linker und rechter Grenzkurve verwendet, für die Verdampfung die mittlere Temperatur zwischen Verdampfereintritt und rechter Grenzkurve.
+- Es wird subkritische und transkritische Prozessführung unterstützt.
 - Auslegung von jeweils zwei Rohrleitungsvarianten für Heißgasleitung, Flüssigkeitsleitung und Saugleitung inklusive Innenvolumen und Mantelfläche.
 - Export aller berechneten Daten als CSV-Datei.
 
 ## Eingabeparameter
 
-Die Berechnung wird mit folgenden Eingaben durchgeführt:
+Folgende Eingaben stehen in der App zur Verfügung:
 
 - Projektname
-- Kältemittel
 - Eingabemodus
 - Kälteleistung, Wärmeleistung oder Verdichtervolumenstrom, abhängig vom gewählten Modus
-- Verflüssigungstemperatur
-- Unterkühlung
+- Gaskühlerdruckbestimmung
+- Gaskühleraustrittstemperatur
+- Gaskühlerdruck
+- Abkühlung nach dem Gaskühler
 - Verdampfungstemperatur
 - Verdampferüberhitzung
 - Saugleitungsüberhitzung
 - Aktivierung der Rohrleitungsdimensionierung
-- Leitungslängen für Heißgas-, Flüssigkeits- und Saugleitung
+- Leitungslängen für Heissgas-, Flüssigkeits- und Saugleitung
+
+## CO2-spezifische Berechnung
+
+Die Anwendung verwendet **CO2** als festes Arbeitsmedium und bestimmt den Prozessbereich anhand des Hochdruckniveaus automatisch als **subkritisch** oder **transkritisch**.
+
+Der Gaskühlerdruck kann entweder automatisch über die hinterlegte Näherungsfunktion bestimmt oder manuell vorgegeben werden.
+
+Zusätzlich wird der erkannte Prozessbereich in den **Systemdaten** ausgegeben.
 
 ## Kreislaufpunkte
 
 Folgende Kreislaufpunkte werden berechnet:
 - **1:** Verdichtereingang nach Überhitzung von Verdampfer und Saugleitung
-- **2:** Verdichterausgang und Verflüssigereintritt
-- **3:** Verflüssigeraustritt und Expansionsventileingang
+- **2:** Verdichterausgang und Gaskühlereintritt
+- **3:** Gaskühleraustritt und Expansionsventileingang
 - **4:** Expansionsventilausgang und Verdampfereintritt
 - **5:** Verdampferausgang und Eingang Saugleitung
-- **c''**: Gesättigtes Gas bei Verflüssigungsdruck
-- **c'**: Flüssigkeit bei Verflüssigungsdruck
 - **0''**: Gesättigtes Gas bei Verdampfungsdruck
 - **0'**: Flüssigkeit bei Verdampfungsdruck
 
