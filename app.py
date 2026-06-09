@@ -179,6 +179,7 @@ def run_calculation(inputs):
 
     T_gc_o_input = inputs["T_gc_o"]
     T_0_input = inputs["T_0"]
+    dt_cu = inputs["dt_cu"]
     p_gc_mode = inputs["p_gc_mode"]
     if p_gc_mode == 0:
         p_gc_input = 0.002 * T_gc_o_input**2 + 2.256 * T_gc_o_input - 0.17 * T_0_input + 4.9
@@ -212,13 +213,12 @@ def run_calculation(inputs):
 
     cycle_mode = "transkritisch" if p_gc >= cp.PropsSI("PCRIT", FLUID) else "subkritisch"
 
-    h_3 = cp.PropsSI("H", "T", T_gc_o, "P", p_gc, FLUID)
+    T_3 = T_gc_o - dt_cu
+    h_3 = cp.PropsSI("H", "T", T_3, "P", p_gc, FLUID)
     h_4 = h_3
     T_2min = T_gc_o + 1
     T_2max = T_gc_o + 100
 
-    p_0_dew_0100 = cp.PropsSI("P", "T", T_0, "Q", 1, FLUID)
-    p_0_bubble_0100 = cp.PropsSI("P", "T", T_0, "Q", 0, FLUID)
     x_4min = 0.01
     x_4max = 0.99
 
@@ -267,7 +267,7 @@ def run_calculation(inputs):
     rho_1 = cp.PropsSI("D", "P", p_0, "T", T_sh, FLUID)
     T_end = T_brentq_h(p_gc, h_2, T_2min, T_2max)
     rho_2 = cp.PropsSI("D", "P", p_gc, "T", T_end, FLUID)
-    rho_3 = cp.PropsSI("D", "P", p_gc, "T", T_gc_o, FLUID)
+    rho_3 = cp.PropsSI("D", "P", p_gc, "T", T_3, FLUID)
 
     V_1 = m_R / rho_1
     V_2 = m_R / rho_2
@@ -275,15 +275,15 @@ def run_calculation(inputs):
 
     mu_1 = cp.PropsSI("V", "P", p_0, "T", T_sh, FLUID)
     mu_2 = cp.PropsSI("V", "P", p_gc, "T", T_end, FLUID)
-    mu_3 = cp.PropsSI("V", "P", p_gc, "T", T_gc_o, FLUID)
+    mu_3 = cp.PropsSI("V", "P", p_gc, "T", T_3, FLUID)
 
     nu_1 = mu_1 / rho_1
     nu_2 = mu_2 / rho_2
     nu_3 = mu_3 / rho_3
 
-    dp_max_hg_bar = 0.002 * (T_gc_o_input - 1) ** 2 + 2.256 * (T_gc_o_input - 1) - 0.17 * T_0_input + 4.9
-    dp_max_hg = (p_gc_input - dp_max_hg_bar) * 1e5
-    dp_max_fl = (p_gc_input - dp_max_hg_bar) * 1e5
+    dp_max_hg_bar = 0.002 * (T_gc_o - 1) ** 2 + 2.256 * (T_gc_o - 1) - 0.17 * T_0 + 4.9
+    dp_max_hg = (p_gc - dp_max_hg_bar) * 1e5
+    dp_max_fl = (p_gc - dp_max_hg_bar) * 1e5
     dp_max_sl = float(cp.PropsSI("P", "T", T_0_dew + 1, "Q", 1, FLUID) - p_0)
 
     pre_hg = float(find_next_bigger_pipe(np.sqrt(4 * V_2 / np.pi / 15)))
@@ -306,11 +306,11 @@ def run_calculation(inputs):
 
     df_points = pd.DataFrame({
         "Punkte": ["1", "2", "3", "4", "5", "0''", "0'"],
-        "Temperatur [°C]": [round(T_sh - 273.15, 2), round(T_end - 273.15, 2), round(T_gc_o - 273.15, 2), round(T_4 - 273.15, 2), round(T_0h - 273.15, 2), round(T_0_dew - 273.15, 2), round(T_0_bubble - 273.15, 2)],
+        "Temperatur [°C]": [round(T_sh - 273.15, 2), round(T_end - 273.15, 2), round(T_3 - 273.15, 2), round(T_4 - 273.15, 2), round(T_0h - 273.15, 2), round(T_0_dew - 273.15, 2), round(T_0_bubble - 273.15, 2)],
         "Druck [bar]": [round(p_0 / 1e5, 2), round(p_gc / 1e5, 2), round(p_gc / 1e5, 2), round(p_0 / 1e5, 2), round(p_0 / 1e5, 2), round(p_0 / 1e5, 2), round(p_0 / 1e5, 2)],
         "Spezifische Enthalpie [kJ/kg]": [round(h_1 / 1e3, 2), round(h_2 / 1e3, 2), round(h_3 / 1e3, 2), round(h_4 / 1e3, 2), round(h_5 / 1e3, 2), round(cp.PropsSI("H", "P", p_0, "Q", 1, FLUID) / 1e3, 2), round(cp.PropsSI("H", "P", p_0, "Q", 0, FLUID) / 1e3, 2)],
         "Dichte [kg/m3]": [round(rho_1, 2), round(rho_2, 2), round(rho_3, 2), round(cp.PropsSI("D", "P", p_0, "Q", x_4, FLUID), 2), round(cp.PropsSI("D", "P", p_0, "T", T_0h, FLUID), 2), round(cp.PropsSI("D", "P", p_0, "Q", 1, FLUID), 2), round(cp.PropsSI("D", "P", p_0, "Q", 0, FLUID), 2)],
-        "Spezifische Entropie [kJ/kg/K]": [round(s_1 / 1e3, 4), round(cp.PropsSI("S", "P", p_gc, "T", T_end, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_gc, "T", T_gc_o, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_0, "Q", x_4, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_0, "T", T_0h, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_0, "Q", 1, FLUID) / 1e3, 2), round(cp.PropsSI("S", "P", p_0, "Q", 0, FLUID) / 1e3, 2)],
+        "Spezifische Entropie [kJ/kg/K]": [round(s_1 / 1e3, 4), round(cp.PropsSI("S", "P", p_gc, "T", T_end, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_gc, "T", T_3, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_0, "Q", x_4, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_0, "T", T_0h, FLUID) / 1e3, 4), round(cp.PropsSI("S", "P", p_0, "Q", 1, FLUID) / 1e3, 2), round(cp.PropsSI("S", "P", p_0, "Q", 0, FLUID) / 1e3, 2)],
         "Dampfqualität [%]": ["", "", "", round(x_4 * 100, 2), "", 100, 0],
     })
 
@@ -382,12 +382,15 @@ col1, col2 = st.columns([1.05, 1.3])
 
 with col1:
     st.subheader("Eingabe")
-    project = st.text_input("Projekt", value="Projekt")
-    
+
+    row1col1, row1col2 = st.columns(2)
+    with row1col1:
+        project = st.text_input("Projekt", value="Projekt")
+    with row1col2:
+        mode = st.selectbox("Eingabemodus", ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"])
+
     row2col1, row2col2 = st.columns(2)
     with row2col1:
-        mode = st.selectbox("Eingabemodus", ["Kälteleistung", "Wärmeleistung", "Verdichtervolumenstrom"])
-    with row2col2:
         if mode == "Kälteleistung":
             q0 = st.number_input("Kälteleistung [kW]", value=10.0)
             qc = 0.0
@@ -400,17 +403,19 @@ with col1:
             vcom = st.number_input("Verdichtervolumenstrom [m3/h]", value=15.0)
             q0 = 0.0
             qc = 0.0
+    with row2col2:
+        pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"])
 
     row3col1, row3col2 = st.columns(2)
     with row3col1:
         tgc = st.number_input("Gaskühleraustrittstemperatur [°C]", value=35.0)
     with row3col2:
+        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=(pgc_mode == "Automatisch"))
         
-        pgc_mode = st.selectbox("Gaskühlerdruck", ["Automatisch", "Manuell"])
 
     row4col1, row4col2 = st.columns(2)
     with row4col1:
-        pgc = st.number_input("Gaskühlerdruck [bar]", value=90.0, disabled=(pgc_mode == "Automatisch"))
+        dt_cu = st.number_input("Abkühlung nach dem Gaskühler [K]", value=2.0)
     with row4col2:
         t0 = st.number_input("Verdampfungstemperatur [°C]", value=-10.0)
 
@@ -444,6 +449,7 @@ if run:
             "T_0": t0,
             "p_gc_mode": 0 if pgc_mode == "Automatisch" else 1,
             "p_gc": pgc,
+            "dt_cu": dt_cu,
             "dt_0h": dt0h,
             "dt_sh": dtsh,
             "if_pipes": 0 if ifpipes == "Nein" else 1,
