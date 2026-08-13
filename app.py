@@ -8,7 +8,7 @@ from scipy.optimize import brentq
 st.set_page_config(page_title="Einfache CO2 Kreislaufberechnung", layout="wide", page_icon="logo.png")
 
 APP_TITLE = "Einfache CO2 Kreislaufberechnung"
-APP_VERSION = "v1.0.0"
+APP_VERSION = "v1.0.1"
 FLUID = "CO2"
 
 
@@ -281,9 +281,9 @@ def run_calculation(inputs):
     nu_2 = mu_2 / rho_2
     nu_3 = mu_3 / rho_3
 
-    dp_max_hg_bar = 0.002 * (T_gc_o - 1) ** 2 + 2.256 * (T_gc_o - 1) - 0.17 * T_0 + 4.9
-    dp_max_hg = (p_gc - dp_max_hg_bar) * 1e5
-    dp_max_fl = (p_gc - dp_max_hg_bar) * 1e5
+    p_max_hg_bar = 0.002 * (T_gc_o - 273.15 - 1) ** 2 + 2.256 * (T_gc_o - 273.15 - 1) - 0.17 * (T_0 - 273.15) + 4.9
+    dp_max_hg = (p_gc - p_max_hg_bar) * 1e5
+    dp_max_fl = (p_gc - p_max_hg_bar) * 1e5
     dp_max_sl = float(cp.PropsSI("P", "T", T_0_dew + 1, "Q", 1, FLUID) - p_0)
 
     pre_hg = float(find_next_bigger_pipe(np.sqrt(4 * V_2 / np.pi / 15)))
